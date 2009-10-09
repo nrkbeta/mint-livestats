@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+        <title>NRKbeta stats</title>
+        <link rel="stylesheet" href="style.css" type="text/css" media="screen">
+        <script src="js/jquery.js"></script>
+        <script src="js/jquery.timers.js"></script>
+        <script src="js/jquery.colors.js"></script>
+        <script src="js/jquery.cycle.js"></script>
+        <script src="js/jquery.cycle.transitions.js"></script>
+        
+        
+        <script>
+        var last_comment;
+        var today_num;
+        function animateBody(color) {
+            $('body').animate( { backgroundColor: color }, 200)
+                .animate( { backgroundColor: '#222' }, 200);
+        }        
+        function reloadComments() {
+            $.getJSON('update.php?comments=true', function(data) {
+                var commentlist = $("#comments_container");
+                commentlist.html('');
+                $.each(data.comments, function(i, item) {
+                    commentlist.append(item);
+                });
+                $('#last_comment dd').html(data.last_comment);
+                last_comment = data.last_comment;
+            });
+        }
+        
+        function reloadViews() {
+            // visits_today
+            $.getJSON('update.php?visitors=true', function(data) {
+                if (!(data.today.unique == today_num)) {
+                    $("#today_num").html(data.today.unique);
+                    today_num = data.today.unique;
+                    animateBody('#333');
+                }
+                if (parseInt(today_num) == 1337) {
+                    //leet();
+                }
+                $("#unique_yday dd").html(data.yesterday.unique);
+                $("#visits_today dd").html(data.today.total+'/'+data.yesterday.total);
+                //$("#visits_yesterday dd").html(data.yesterday.total);
+            });
+        }
+        
+        function getPopular() {
+            $.get('update.php?popular=true', function(data) {
+                $('#read_postlist').html(data);
+            });
+        }
+        function getReferers() {
+            $.get('update.php?referers=true', function(data) {
+                $('#referer_postlist').html(data);
+            });
+        }
+        
+        
+        function reloadCycle() {
+            $("#pager").html('');
+            $(document).oneTime('2s', function() {
+                $('#comments_container').cycle({ 
+				    fx:    'fade', 
+				    speed:  1000,
+				    pager: '#pager',
+				    timeout: 6000,
+				 });
+            });
+        }
+
+        
+        $(document).ready(function() {
+            $(document).everyTime('5s', function() {
+                reloadViews();
+            });
+            $(document).everyTime('50s', function() {
+                reloadComments();
+                reloadCycle();
+                getPopular();
+                getReferers();
+            });
+            reloadViews();
+            reloadComments();
+            reloadCycle();
+            getPopular();
+            getReferers();
+        });
+        
+        
+            
+        </script>
+        
+        <script>
+        function printCurrentTime() {
+            var date = new Date();
+            var minutes = date.getMinutes();
+            var seconds = date.getSeconds();
+            if (parseInt(minutes)<10) {
+                minutes = '0'+minutes;
+            }
+            if (parseInt(seconds)<10) {
+                seconds = '0'+seconds;
+            }
+            var s = date.getHours() +':'+minutes+':'+seconds;
+            document.getElementById('clock').innerHTML = s;
+        }
+        
+        setInterval(printCurrentTime, 1000);
+        
+        </script>
+    </head>
+    
+    <body>
+        <img src="gfx/1337.jpg" id="leet" style="display: none;">
+        <div id="topline">
+            <div class="cent">
+                <h1>Mint Livestats</h1>
+                <div id="clock"></div>
+                <div class="clearer"></div>
+            </div>
+        </div>
+        <div id="wrap" class="cent">
+            <div id="number">
+                <span class="num" id="today_num">2172</span>
+                <span class="txt">Unike i dag</span>                
+                
+                <div id="comment_cont">
+                <div id="commentlist" class="table">
+                    <h2>Siste kommentarer/Twitter-meldinger
+                        <ul id="pager">
+                        </ul>
+                    </h2>
+                    <div id="comments_container">
+                        
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            <div id="meta">
+                
+                <div class="table">
+                    <h2>Metainfo</h2>
+                    <dl id="last_comment">
+                        <dt>Siste kommentar</dt>
+                        <dd>14:55</dd>
+                        <div class="clearer"></div>
+                        
+                    </dl>
+                    <dl class="odd" id="visits_today">
+                        <dt>Visninger i dag/går</dt>
+                        <dd>2430</dd>
+                        <div class="clearer"></div>
+                    </dl>
+                    
+                    <dl id="unique_yday">
+                        <dt>Unike i går</dt>
+                        <dd>2200</dd>
+                        <div class="clearer"></div>
+                    </dl>
+                    
+                </div>
+                
+                <div class="table">
+                    <h2>Mest leste poster siste tre døgn</h2>
+                    <div id="read_postlist">
+                        
+                    </div>
+                </div>
+                
+                <div class="table read">
+                    <h2>Hvor kom brukerne fra den siste timen?</h2>
+                    <div id="referer_postlist">
+                        
+                    </div>
+                </div>
+                
+                
+            </div>
+            
+        </div>
+    </body>
+</html>
