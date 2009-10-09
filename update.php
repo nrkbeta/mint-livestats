@@ -5,7 +5,7 @@ require_once('./config.php');
 
 if ($_GET['visitors']) {
     // the `data` column in the mint__config table holds a serialized PHP array
-    $query = mysql_query("SELECT data FROM `".$mint_prefix."__config;");
+    $query = mysql_query("SELECT data FROM `".$mint_prefix."_config;");
     $result = mysql_fetch_row($query);
     foreach ($result as $field) {
         
@@ -29,7 +29,7 @@ if ($_GET['referers']) {
     $t = time();
     // Get the referers that sent most traffic the last hour. Exclude local referers.
     $query = "SELECT `referer`, `resource`, `resource_title`, COUNT(`referer`) as `total`, `dt`
-    			FROM `".$mint_prefix."_visit` 
+    			FROM `".$mint_prefix."visit` 
     			WHERE `referer_is_local` = 0 AND `search_terms` = '' AND dt > $t-(60*60)
     			GROUP BY `referer_checksum` 
     			ORDER BY `total` DESC, `dt` DESC 
@@ -70,7 +70,7 @@ if ($_GET['popular']) {
     $t = time();
     // Get the most popular (most read) posts the last 72 hours, exclude the front page.
     $query = "SELECT `resource`, `resource_checksum`, `resource_title`, COUNT(`resource_checksum`) as `total`, `dt`
-    			FROM `".$mint_prefix."_visit` WHERE dt > $t-(72*60*60) AND `resource`!='".$front_page_url."'
+    			FROM `".$mint_prefix."visit` WHERE dt > $t-(72*60*60) AND `resource`!='".$front_page_url."'
     			GROUP BY `resource_checksum` 
     			ORDER BY `total` DESC, `dt` DESC
     			LIMIT 0,5";
